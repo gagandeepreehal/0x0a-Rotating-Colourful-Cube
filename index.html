@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full w-full">
+  <head>
+    <title>0x0a : Rotating Colourful Cube</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="h-full w-full">
+    <div class="container flex flex-col nowrap gap-2
+                p-8 h-full m-auto">
+      <h1 class="flex-none text-2xl font-bold">0x0a : Rotating Colourful Cube</h1>
+      <div class="flex-1">
+        <canvas id="myCanvas"
+                width="10" height="1"
+                class=" bg-slate-100 w-full h-full"></canvas>
+      </div>
+    </div>
+    <script type="text/javascript"
+            src="./canvas-helpers.js"></script>
+    <script type="text/javascript"
+            src="./shaders.js"></script>
+    <script type="text/javascript"
+            src="./buffer.js"></script>
+    <script type="text/javascript"
+            src="./cached-load.js"></script>
+    <script type="text/javascript"
+            src="./drawReferenceTriangles.js"></script>
+    <script type="text/javascript"
+            src="./main.js"></script>
+    <script type="text/javascript">
+      main()
+    </script>
+  </body>
+</html>
