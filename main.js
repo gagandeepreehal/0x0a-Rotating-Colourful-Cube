@@ -35,18 +35,25 @@ async function main() {
   // 	= await getReferenceTrianglesDrawSetup(gl)
 
   await RefTriangles2.bootstrap()
-  const refTriangles2 = new RefTriangles2(gl, {
-    pos : [
-      [0.5,   0.5, 1.0],
-      [0.0,  -0.5, 1.0],
-      [-0.5,  0.5, 1.0],
-    ],
-    colors : [
-      [0.8,0.1,0.05],
-      [0.8,0.1,0.05],
-      [0.8,0.1,0.05],
-    ]
-  })
+  // const refTriangles2 = new RefTriangles2(gl, {
+  //   pos : [
+  //     [0.5,   0.5, 1.0],
+  //     [0.0,  -0.5, 1.0],
+  //     [-0.5,  0.5, 1.0],
+  //   ],
+  //   colors : [
+  //     [0.8,0.1,0.05],
+  //     [0.8,0.1,0.05],
+  //     [0.8,0.1,0.05],
+  //   ]
+  // })
+  const N = 15
+  const data = {
+    pos : getRandomTriangles(N),
+    colors : getRandomColorsRgb(N,3),
+  }
+  console.log({data})
+  const refTriangles2 = new RefTriangles2(gl, data)
 
   gl.clearColor(0,0,0,0)
   // Clear Buffers
