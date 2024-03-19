@@ -1,3 +1,7 @@
+// ----------------------------------------------------
+// Canvas
+// ----------------------------------------------------
+
 // let getDom = (...args) => (document.querySelector(...args))
 const getDom = document.querySelector.bind(document)
 
@@ -16,4 +20,14 @@ function getCanvas(sel, context='2d') {
     ctx: canvas.getContext(context),
     bb: canvas.getBoundingClientRect()
   }
+}
+
+
+// ----------------------------------------------------
+// URL/ Path
+// ----------------------------------------------------
+function currentScript() {
+  const domel = document.currentScript
+  , location = domel.src
+  return {domel, location}
 }

@@ -31,12 +31,26 @@ async function main() {
   //   N,
   // })
 
-  const {drawFn: drawReferenceTriangles}
-	= await getReferenceTrianglesDrawSetup(gl)
+  // const {drawFn: drawReferenceTriangles}
+  // 	= await getReferenceTrianglesDrawSetup(gl)
+
+  await RefTriangles2.bootstrap()
+  const refTriangles2 = new RefTriangles2(gl, {
+    pos : [
+      [0.5,   0.5, 1.0],
+      [0.0,  -0.5, 1.0],
+      [-0.5,  0.5, 1.0],
+    ],
+    colors : [
+      [0.8,0.1,0.05],
+      [0.8,0.1,0.05],
+      [0.8,0.1,0.05],
+    ]
+  })
 
   gl.clearColor(0,0,0,0)
   // Clear Buffers
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-  drawReferenceTriangles()
+  refTriangles2.draw()
 }

@@ -1,14 +1,17 @@
 // This variable is only for namespacing variables
 // vulnerable to be repeated.
 const drawTrianglesOnZequals0Config = {
+  // The location of this script; so that the relative
+  // URL's may be resolved from here.
+  thisScript: document.currentScript.src,
 
   // Vertex Shader Text
   // --------------------------------------------------
-  vShaderUrl : './shaders/trianglesAtZequals0.vertex.glsl',
+  vShaderUrl : './shaders/vertex.glsl',
 
   // Fragment Shader Text
   // --------------------------------------------------
-  fShaderUrl: './shaders/trianglesAtZequals0.vertex.glsl',
+  fShaderUrl: './shaders/fragment.glsl',
 
   // Vertex positions
   // --------------------------------------------------
@@ -123,6 +126,11 @@ async function setupTrianglesOnZequals0Shaders(gl) {
 	  drawTrianglesOnZequals0Config
 	)
 
+  console.log("VERTEX_SHADER")
+  console.log(vShaderTxt)
+  console.log("FRAGMENT_SHADER")
+  console.log(fShaderTxt)
+
   // ----------------------------------------------------
   // Create Program
   // ----------------------------------------------------
@@ -163,18 +171,25 @@ async function setupTrianglesOnZequals0Shaders(gl) {
 }  
 
 async function getTrianglesOnZequals0Shaders(
-  {vShaderUrl, fShaderUrl}
+  {vShaderUrl, fShaderUrl, thisScript}
 ) {
-  return {
-    vShaderTxt: await cachedLoad(
-      './shaders/trianglesAtZequals0.vertex.glsl',
-      'text'
-    ),
-    fShaderTxt: await cachedLoad(
-      './shaders/trianglesAtZequals0.fragment.glsl',
-      'text'
-    )
+  if (vShaderUrl instanceof URL === false) {
+    vShaderUrl = new URL(vShaderUrl, thisScript)
   }
+  if (fShaderUrl instanceof URL === false) {
+    fShaderUrl = new URL(fShaderUrl, thisScript)
+  }
+
+  console.log({vShaderUrl, fShaderUrl})
+
+  const vShaderTxt = await cachedLoad(
+    vShaderUrl, 'text'
+  )
+  const fShaderTxt = await cachedLoad(
+    fShaderUrl, 'text'
+  )
+
+  return {vShaderTxt, fShaderTxt}
 }
 
 function bindTrianglesOnZequals0VertexArray(
@@ -235,3 +250,4 @@ function bindTrianglesOnZequals0VertexArray(
 
   gl.useProgram(shaderProgram);
 }
+
