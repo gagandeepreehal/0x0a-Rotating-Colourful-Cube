@@ -1,13 +1,5 @@
 # 0x0a : Rotating Colourful Cube #
 
-|                  |                              |
-|------------------|------------------------------|
-| Code             | 0x0a                         |
-| Submission Opens | Wed 24 Apr 2024 17:00 hrs    |
-| Deadline         | Mon 29 Apr 2024 08:00 hrs    |
-| Weightage        | 2 marks                      |
-
-
 ## Assignment ##
 Update the candidate details in [`main.js`](./main.js)
 
