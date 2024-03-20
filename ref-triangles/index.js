@@ -40,7 +40,7 @@ const drawTrianglesOnZequals0Config = {
 // To draw in the render loop, do:
 //
 // drawFn()
-async function getReferenceTrianglesDrawSetup (gl) {
+async function getReferenceTrianglesDraw (gl, {pos, colors}) {
   // Compile program to memory
   // --------------------------------------------------
   const {
@@ -50,26 +50,27 @@ async function getReferenceTrianglesDrawSetup (gl) {
 
   // Copy data to memory 
   // --------------------------------------------------
-  const vao = gl.createVertexArray();
-  let {pos, colors} = drawTrianglesOnZequals0Config
+  // const vao = gl.createVertexArray();
+  // let {pos, colors} = drawTrianglesOnZequals0Config
   pos = pos.flat()
   colors = colors.flat()
   const N = pos.length
   const {
     pos: posVerts, colors: colorVerts,
-  } = setupDataBuffers(gl, {pos, colors}, vao)
+  } = setupDataBuffers(gl, {pos, colors})
+  // } = setupDataBuffers(gl, {pos, colors}, vao)
 
   console.log({posVerts, colorVerts, pos, colors})
 
   // Setup memory mapping
   // --------------------------------------------------
-  bindTrianglesOnZequals0VertexArray(
+  const {vao} = setupTrianglesOnZequals0VertexArray(
     gl,
     {
       shaderProgram,
       aPositionLoc,
       aColorRgbLoc,
-      vao,
+      // vao,
       posVerts,
       colorVerts,
     }
@@ -98,25 +99,25 @@ async function getReferenceTrianglesDrawSetup (gl) {
 }
 
 
-function drawReferenceTriangles(
-  gl,
-  {
-    shaderProgram,
-    aPositionLoc,
-    aColorRgbLoc,
-    posVerts,
-    colorVerts,
-    vao,
-    N
-  }
-) {
-  console.log({shaderProgram, vao})
-  gl.useProgram(shaderProgram);
-  gl.bindVertexArray(vao)
-  gl.drawArrays(gl.TRIANGLES, 0, N);
-  gl.bindVertexArray(null)
-  gl.useProgram(null);
-}
+// function drawReferenceTriangles(
+//   gl,
+//   {
+//     shaderProgram,
+//     aPositionLoc,
+//     aColorRgbLoc,
+//     posVerts,
+//     colorVerts,
+//     vao,
+//     N
+//   }
+// ) {
+//   console.log({shaderProgram, vao})
+//   gl.useProgram(shaderProgram);
+//   gl.bindVertexArray(vao)
+//   gl.drawArrays(gl.TRIANGLES, 0, N);
+//   gl.bindVertexArray(null)
+//   gl.useProgram(null);
+// }
 
 
 async function setupTrianglesOnZequals0Shaders(gl) {
@@ -192,17 +193,19 @@ async function getTrianglesOnZequals0Shaders(
   return {vShaderTxt, fShaderTxt}
 }
 
-function bindTrianglesOnZequals0VertexArray(
+function setupTrianglesOnZequals0VertexArray(
   gl,
   {
     shaderProgram,
     aPositionLoc,
     aColorRgbLoc,
-    vao,
+    // vao,
     posVerts,
     colorVerts,
   }
 ) {
+  const vao = gl.createVertexArray();
+
   // ----------------------------------------------------
   // Bind Program Pointers to Data & Buffers
   // ----------------------------------------------------
@@ -249,5 +252,7 @@ function bindTrianglesOnZequals0VertexArray(
   // ----------------------------------------------------
 
   gl.useProgram(shaderProgram);
+
+  return {vao}
 }
 

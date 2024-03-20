@@ -203,7 +203,16 @@ class RefTriangles2 {
     )
   }
 
-  draw() {
+  draw(ms, inputs) {
+    // ------------------------------------------------
+    // FIXME: HANDLE INPUTS
+    // ------------------------------------------------
+
+    // ------------------------------------------------
+    // FIXME: HANDLE Cube Rotation based on MS and
+    // INPUTS
+    // ------------------------------------------------
+
     const gl = this.#gl
     const N = this.N
     const vao = this.vao

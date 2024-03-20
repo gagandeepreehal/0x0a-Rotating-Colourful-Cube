@@ -7,7 +7,42 @@
 | Deadline         | Mon 29 Apr 2024 08:00 hrs    |
 | Weightage        | 2 marks                      |
 
+
 ## Assignment ##
+Update the candidate details in [`main.js`](./main.js)
+
+### Step 1. Handle the camera controls ###
+
+The boilerplate renders random rectangles on plane
+$Z=0$.
+
+The task is 
++ To modify the [`vertex.glsl`](./vertex.glsl) and
+  [`fragment.glsl`](./fragment.glsl); to account for
+  Model-View and Projection Transformations to the
+  geometry;
++ Refactor the functions (if required)
+  [`RefTriangles2.setupShaders`](./ref-triangles-2/index.js#L42-L97)
+  and
+  [`RefTriangles2.setupVao`](./ref-triangles-2/index.js#L116-L181),
+  accordingly;
++ Compute the transformation matrices based on inputs
+  and set values at relevant pointers within the
+  program in
+  [`RefTriangles2.draw`](./ref-triangles-2/index.js#L206-L224)
+
+### Step 2. Render a Cube ###
++ Refactor function [`generateData(N,
+  redundancy=6)`](./experiment.js#L64-71) to return
+  `pos` and `colors` values corresponding to a cube
+
+### Step 3. Handle the Cube Rotation RPM ###
++ Refactor
+  [`RefTriangles2.draw`](./ref-triangles-2/index.js#L206-L224)
+  to account for cube rotation, based on `ms`.
++ Calibrate for `inputs.cubeRpm`.
+
+## Objective ##
 
 Recall the [003-gl
 exercise](https://github.com/tiet-ucs505/003-gl) to
@@ -20,19 +55,6 @@ The objective is to
   so that the up-vector always pointing towards the +Z
   of the model; and
 + Render it with WebGL.
-
-### Given : A reference render pipeline for triangle ###
-
-Draw a triangle $\Delta PQR$ with its vertex positions
-given as,
-
-$$\begin{align}\notag
-\begin{bmatrix}\mathbf{p}&\mathbf{q}&\mathbf{r}
-\end{bmatrix}& \equiv
-\begin{bmatrix}0.5&0&-0.5\\0.5&-0.5&0.5\\0&0&0
-\end{bmatrix}\end{align}$$
-
-Create a vertex buffer 
 
 ## Resources ##
 
