@@ -36,6 +36,19 @@ The task is
   to account for cube rotation, based on `ms`.
 + Calibrate for `inputs.cubeRpm`.
 
+### Step 4. Create a Video and Submit ###
+
+Create a 15-30s short video to highlight your efforts.
+Upload it to a streaming platform (like youtube) and
+submit *a public link*.
+
+## Submit ##
+
+1. Git URL
+2. Commit ID
+3. Teaser: `<roll-no>-<problem-code>-<desc>-teaser.png`
+4. Video Link
+
 ## Objective ##
 
 Recall the [003-gl
