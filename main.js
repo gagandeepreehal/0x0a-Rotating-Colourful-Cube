@@ -1,7 +1,3 @@
-// Candidate Details
-const rollNo = '10983743'
-const name = 'The Tutor'
-
 // Switcher State
 // ----------------------------------------------------
 let visible = 'Canvas'	// or 'refimg'
@@ -26,7 +22,7 @@ async function main() {
   const experiment = new Experiment()
 
   // Update Candidate Details
-  updateCandidateDetails({rollNo,name})
+  updateCandidateDetails(Experiment)
 
   // // Set up refimg
   // setupRefimg()

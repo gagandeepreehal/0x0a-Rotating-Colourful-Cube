@@ -1,5 +1,7 @@
 # 0x0a : Rotating Colourful Cube #
 
+![](./assets/teaser.png)
+
 ## Assignment ##
 Update the candidate details in [`main.js`](./main.js)
 

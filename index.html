@@ -14,7 +14,8 @@
   <body class="h-full w-full text-sm">
     <div class="container flex flex-col nowrap gap-2
                 p-8 h-full m-auto">
-      <header class="flex-none">
+      <header class="flex-none flex flex-row
+                     justify-between items-baseline">
         <h1 class="text-2xl font-bold">0x0a : Rotating Colourful Cube</h1>
         <p class="text-right" id="by"></p>
       </header>
@@ -23,6 +24,7 @@
         <div class="flex-1 relative">
           <!-- <img class="hidden" id="refImg"/> -->
           <canvas id="myCanvas"
+                  width="10" height="1"
                   class=" bg-slate-100 w-full h-full"></canvas>
           <div class="absolute top-0 right-0 text-center">
             <!-- <a class="cursor-pointer block p-2 -->
@@ -114,7 +116,7 @@
                    id="pitchRadians"
                    type="number"
                    min="0"
-                   max="6.283185307"
+                   max="6.283"
                    step="0.002"
                    class="flex-1 border p-1 rounded"
                    placeholder="Pitch (rad)"
@@ -123,7 +125,7 @@
                    id="yawRadians"
                    type="number"
                    min="0"
-                   max="6.283185307"
+                   max="6.283"
                    step="0.002"
                    class="flex-1 border p-1 rounded"
                    placeholder="Yaw (rad)"
@@ -132,7 +134,7 @@
                    id="rollRadians"
                    type="number"
                    min="0"
-                   max="6.283185307"
+                   max="6.283"
                    step="0.002"
                    class="flex-1 border p-1 rounded"
                    placeholder="Roll (rad)"
@@ -168,7 +170,7 @@
                    id="camFov"
                    type="number"
                    min="0"
-                   max="6.283185307"
+                   max="6.2832"
                    step="0.002"
                    class="flex-1 border p-1 rounded"
                    placeholder="FoV (= 2π/3 rad)"

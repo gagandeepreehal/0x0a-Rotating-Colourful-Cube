@@ -1,4 +1,8 @@
 class Experiment {
+  // Candidate Details
+  static rollNo = '10983743'
+  static name = 'The Tutor'
+
   #gl
   #programs=[]
 
