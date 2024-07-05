@@ -1,5 +1,6 @@
 class RefTriangles2 {
   #gl = null
+  #inputs = null
 
   vao
   buffers
@@ -206,7 +207,11 @@ class RefTriangles2 {
   draw(ms, inputs) {
     // ------------------------------------------------
     // FIXME: HANDLE INPUTS
+    //
+    // Uncomment the debugInputs to understand the
+    // inputs format
     // ------------------------------------------------
+    this.#debugInputs(inputs)
 
     // ------------------------------------------------
     // FIXME: HANDLE Cube Rotation based on MS and
@@ -222,6 +227,26 @@ class RefTriangles2 {
     gl.bindVertexArray(null)
     gl.useProgram(null);
   }
+
+  #debugInputs(inputs) {
+    if (!deepEqual(inputs, this.#inputs)) {
+      console.log({inputs})
+    }
+    this.#inputs = inputs
+  }
   
 }
 
+/**
+ * Deep Equal for object comparison.
+ *
+ * Adapted from this SO exchange:
+ * https://stackoverflow.com/a/32922084
+ */
+function deepEqual(x, y) {
+  const ok = Object.keys, tx = typeof x, ty = typeof y;
+  return x && y && tx === 'object' && tx === ty ? (
+    ok(x).length === ok(y).length &&
+      ok(x).every(key => deepEqual(x[key], y[key]))
+  ) : (x === y);
+}

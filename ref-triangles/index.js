@@ -95,7 +95,7 @@ async function getReferenceTrianglesDraw (gl, {pos, colors}) {
       gl.bindVertexArray(null)
       gl.useProgram(null);
     }
-  }    
+  }
 }
 
 
