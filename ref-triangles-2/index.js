@@ -317,7 +317,7 @@ class RefTriangles2 {
       mat4.rotateY(viewMatrix, viewMatrix, inputs.yawRadians)
       mat4.rotateZ(viewMatrix, viewMatrix, inputs.rollRadians)
     }
-    // console.log({viewMatrix})
+    console.log({viewMatrix})
   
     // Continuous rotation
 
@@ -332,7 +332,7 @@ class RefTriangles2 {
     const modelMatrix = mat4.create();
     mat4.rotateY(modelMatrix, modelMatrix, angle);
 
-    // console.log({modelMatrix})
+    console.log({modelMatrix})
      // Ensure inputs are valid numbers
   const isValidNumber = (num) => typeof num === 'number' && !isNaN(num) && isFinite(num);
 
@@ -362,7 +362,7 @@ class RefTriangles2 {
     mat4.ortho(projectionMatrix, -1, 1, -1, 1, inputs.camNear, inputs.camFar);
   }
   // console.log(gl.canvas.width / gl.canvas.height);
-  // console.log({ projectionMatrix });
+  console.log({ projectionMatrix });
   // console.log({ projectionMatrix });
   // Compute transformation matrices
 
