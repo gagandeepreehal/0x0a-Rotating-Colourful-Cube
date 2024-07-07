@@ -221,56 +221,24 @@ class RefTriangles2 {
   //   console.log({vao:this.vao})
   // }
 
-  // setupVao() {
-  //   const gl = this.#gl
-  
-  //   const {
-  //     program,
-  //     attributes: {
-  //       aPosition, aColorRgb
-  //     },
-  //     uniforms: {
-  //       uModelMatrix, uViewMatrix, uProjectionMatrix
-  //     }
-  //   } = this.shader
-  
-  //   const {pos, colors} = this.buffers
-  
-  //   const vao = gl.createVertexArray()
-  
-  //   // Bind Program Pointers to Data & Buffers
-  //   gl.useProgram(program);
-  //   gl.bindVertexArray(vao);
-  
-  //   // Attributes
-  //   gl.bindBuffer(gl.ARRAY_BUFFER, pos);
-  //   gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 0, 0);
-  //   gl.bindBuffer(gl.ARRAY_BUFFER, colors);
-  //   gl.vertexAttribPointer(aColorRgb, 3, gl.FLOAT, false, 0, 0);
-  //   gl.enableVertexAttribArray(aPosition);
-  //   gl.enableVertexAttribArray(aColorRgb);
-  
-  //   gl.bindBuffer(gl.ARRAY_BUFFER, null);
-  //   gl.bindVertexArray(null);
-  //   gl.useProgram(null);
-  
-  //   this.vao = vao
-  
-  //   console.log({vao: this.vao})
-  // }
 
   setupVao() {
     const gl = this.#gl;
   
     const {
-      program,
-      attributes: { aPosition, aColorRgb },
-    } = this.shader;
-  
-    const { pos, colors } = this.buffers;
-  
+          program,
+          attributes: {
+            aPosition, aColorRgb
+          },
+          uniforms: {
+            uModelMatrix, uViewMatrix, uProjectionMatrix
+          }
+        } = this.shader
+      
+    const {pos, colors} = this.buffers
+
     const vao = gl.createVertexArray();
-  
+  //  console.log("Position buffer size:", pos.length);
     gl.useProgram(program);
     gl.bindVertexArray(vao);
   
@@ -292,6 +260,11 @@ class RefTriangles2 {
     this.vao = vao;
   
     console.log({ vao: this.vao });
+      // Log buffer sizes
+  // console.log("Position buffer size:", pos.byteLength);
+  // console.log("Color buffer size:", colors.byteLength);
+
+  // console.log("VAO setup complete:", this.vao);
   }
   static async bootstrap() {
     const Cls = this
@@ -316,6 +289,7 @@ class RefTriangles2 {
     )
   }
 
+
  
   draw(ms, inputs) {
     this.#debugInputs(inputs)
@@ -331,46 +305,83 @@ class RefTriangles2 {
     } = this.shader
   
     // Compute transformation matrices
-    const modelMatrix = mat4.create()
+    
   
     const viewMatrix = mat4.create()
     if (inputs.isCamTranslate) {
       mat4.translate(viewMatrix, viewMatrix, [inputs.x, inputs.y, inputs.z])
     }
+    // console.log({viewMatrix})
     if (inputs.isCamRotate) {
       mat4.rotateX(viewMatrix, viewMatrix, inputs.pitchRadians)
       mat4.rotateY(viewMatrix, viewMatrix, inputs.yawRadians)
       mat4.rotateZ(viewMatrix, viewMatrix, inputs.rollRadians)
     }
+    // console.log({viewMatrix})
   
     // Continuous rotation
-    const angle = ms * cubeRpm * 0.06 * (Math.PI / 180); // Converts rpm to radians per millisecond
+
+    // Ensure ms and cubeRpm are valid numbers
+    // console.log('ms:', ms);
+    // console.log('cubeRpm:', inputs.cubeRpm);
+
+    const angle = ms * inputs.cubeRpm * 0.06 * (Math.PI / 180); // Converts rpm to radians per millisecond
+
+    // console.log('angle:', angle);
+
+    const modelMatrix = mat4.create();
     mat4.rotateY(modelMatrix, modelMatrix, angle);
 
+    // console.log({modelMatrix})
+     // Ensure inputs are valid numbers
+  const isValidNumber = (num) => typeof num === 'number' && !isNaN(num) && isFinite(num);
 
-    const projectionMatrix = mat4.create()
-    if (inputs.isCamPerspective) {
-      mat4.perspective(projectionMatrix, inputs.camfov, gl.canvas.width / gl.canvas.height, inputs.camNear, inputs.camFar)
-    } else {
-      mat4.ortho(projectionMatrix, -1, 1, -1, 1, inputs.camNear, inputs.camFar)
-    }
-  
+  if (!isValidNumber(inputs.camfov) || inputs.camfov<=0) {
+    // console.error('Invalid camfov value:', inputs.camfov);
+    inputs.camfov = Math.PI / 4; // Default to 45 degrees if invalid
+  }
+  if (!isValidNumber(inputs.camNear) || inputs.camNear <= 0) {
+    // console.error('Invalid camNear value:', inputs.camNear);
+    inputs.camNear = 0.002; // Default to 0.1 if invalid
+  }
+  if (!isValidNumber(inputs.camFar) || inputs.camFar <= inputs.camNear) {
+    // console.error('Invalid camFar value:', inputs.camFar);
+    inputs.camFar = 0.1; // Default to 1000 if invalid
+  }
+
+  const aspectRatio = gl.canvas.width / gl.canvas.height;
+  if (!isValidNumber(aspectRatio) || aspectRatio <= 0) {
+    console.error('Invalid aspect ratio:', aspectRatio);
+    // Default aspect ratio
+  }
+
+  const projectionMatrix = mat4.create();
+  if (inputs.isCamPerspective) {
+    mat4.perspective(projectionMatrix, inputs.camfov, gl.canvas.width / gl.canvas.height, inputs.camNear, inputs.camFar);
+  } else {
+    mat4.ortho(projectionMatrix, -1, 1, -1, 1, inputs.camNear, inputs.camFar);
+  }
+  // console.log(gl.canvas.width / gl.canvas.height);
+  // console.log({ projectionMatrix });
+  // console.log({ projectionMatrix });
+  // Compute transformation matrices
+
     // Set the uniforms
     gl.useProgram(program);
     gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix);
     gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix);
     gl.uniformMatrix4fv(uProjectionMatrix, false, projectionMatrix);
   
-    gl.bindVertexArray(vao)
-    gl.drawElements(gl.TRIANGLES, N, gl.UNSIGNED_SHORT, 0);
-    // gl.drawArrays(gl.TRIANGLES, 0, N);
+    gl.bindVertexArray(this.vao)
+    // gl.drawElements(gl.TRIANGLES, N, gl.UNSIGNED_SHORT, 0);
+    gl.drawArrays(gl.TRIANGLES, 0, this.N);
     gl.bindVertexArray(null)
     gl.useProgram(null);
   }
 
   #debugInputs(inputs) {
     if (!deepEqual(inputs, this.#inputs)) {
-      console.log({inputs})
+      // console.log({inputs})
     }
     this.#inputs = inputs
   }
