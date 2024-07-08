@@ -1,126 +1,84 @@
 class RefTriangles2 {
-  #gl = null
-  #inputs = null
+  #gl = null; // Private WebGL context
+  #inputs = null; // Private inputs object
 
-  vao
-  buffers
-  shader
-  N
+  vao; // Vertex Array Object
+  buffers; // Object to store WebGL buffers
+  shader; // Object to store shader program information
+  N; // Number of vertices
 
-  static vShaderUrl = './shaders/vertex.glsl'
-  static fShaderUrl = './shaders/fragment.glsl'
-  static scriptName = document.currentScript.src
-  static vShaderTxt = ''
-  static fShaderTxt = ''
+  static vShaderTxt = `
+    attribute vec4 aPosition;
+    attribute vec4 aColorRgb;
+    varying vec4 vColorRgb;
+    uniform mat4 uModelMatrix;
+    uniform mat4 uViewMatrix;
+    uniform mat4 uProjectionMatrix;
 
-  constructor (gl, {pos, colors}) {
-    this.#gl = gl
-    
+    void main(void) {
+      gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * aPosition;
+      vColorRgb = aColorRgb;
+    }
+  `;
+
+  static fShaderTxt = `
+    precision mediump float;
+    varying vec4 vColorRgb;
+
+    void main(void) {
+      gl_FragColor = vColorRgb;
+    }
+  `;
+
+  constructor(gl, { pos, colors }) {
+    this.#gl = gl; // Store WebGL context locally
+
     if (pos.length !== colors.length) {
       throw new TypeError({
-	pos: pos.length,
-	required:'equal',
-	colors: colors.length
-      })
+        pos: pos.length,
+        required: 'equal',
+        colors: colors.length,
+      });
     }
 
-    // Num elements required to be rendered
-    this.N = pos.length
+    this.N = pos.length / 3; // Determine number of vertices (each vertex has 3 components)
 
-    // Compile program to memory
-    // --------------------------------------------------
-    this.setupShaders()
-
-    // Copy data to memory 
-    // --------------------------------------------------
-    this.setupBuffers({pos, colors})
-
-    // Setup memory mapping
-    // --------------------------------------------------
-    this.setupVao()
+    this.setupShaders(); // Initialize shaders
+    this.setupBuffers({ pos, colors }); // Initialize WebGL buffers
+    this.setupVao(); // Initialize Vertex Array Object (VAO)
   }
 
-  // setupShaders() {
-  //   const gl = this.#gl
-  //   const {vShaderTxt, fShaderTxt} = this.constructor
-
-  //   console.log("VERTEX_SHADER")
-  //   console.log(vShaderTxt)
-  //   console.log("FRAGMENT_SHADER")
-  //   console.log(fShaderTxt)
-
-  //   // ----------------------------------------------------
-  //   // Create Program
-  //   // ----------------------------------------------------
-  //   // // For clarity
-  //   // writeTextToDomSelector(vShaderTxt, '#vShader code')
-  //   // writeTextToDomSelector(fShaderTxt, '#fShader code')
-  //   const vShader = compileShader(gl, vShaderTxt, gl.VERTEX_SHADER)
-  //   const fShader = compileShader(gl, fShaderTxt, gl.FRAGMENT_SHADER)
-  //   const shaderProgram = linkShaders(
-  //     gl, vShader, fShader, true
-  //   )
-
-  //   // ----------------------------------------------------
-  //   // Extract Program Pointers
-  //   // ----------------------------------------------------
-  //   gl.useProgram(shaderProgram);
-  //   const aPositionLoc
-	//   = gl.getAttribLocation(
-	//     shaderProgram, "aPosition"
-	//   )
-  //   , aColorRgbLoc
-	//   = gl.getAttribLocation(
-	//     shaderProgram, "aColorRgb"
-	//   )
-
-  //   // This is just a boilerplate to use for getting
-  //   // uniforms.
-  //   // , uPointSizeLoc	= gl.getUniformLocation(
-  //   //   shaderProgram,
-  //   //   "uPointSize"
-  //   // )
-
-  //   gl.useProgram(null);
-
-  //   this.shader = {
-  //     program: shaderProgram,
-  //     attributes: {
-	// aPosition: aPositionLoc,
-	// aColorRgb: aColorRgbLoc,
-  //     },
-  //     uniforms: {
-	// // uPointSize: uPointSizeLoc,
-  //     }
-  //   }
-
-  //   console.log({shader:this.shader})
-  // }
-
+  // Compile vertex and fragment shaders, link them into a shader program
   setupShaders() {
-    const gl = this.#gl
-    const {vShaderTxt, fShaderTxt} = this.constructor
-  
-    console.log("VERTEX_SHADER")
-    console.log(vShaderTxt)
-    console.log("FRAGMENT_SHADER")
-    console.log(fShaderTxt)
-  
-    // Create Program
-    const vShader = compileShader(gl, vShaderTxt, gl.VERTEX_SHADER)
-    const fShader = compileShader(gl, fShaderTxt, gl.FRAGMENT_SHADER)
-    const shaderProgram = linkShaders(gl, vShader, fShader, true)
-  
-    // Extract Program Pointers
+    const gl = this.#gl;
+    const { vShaderTxt, fShaderTxt } = this.constructor; // Retrieve shader source codes
+
+    console.log('VERTEX_SHADER');
+    console.log(vShaderTxt);
+    console.log('FRAGMENT_SHADER');
+    console.log(fShaderTxt);
+
+    // Compile vertex shader
+    const vShader = this.compileShader(gl, vShaderTxt, gl.VERTEX_SHADER);
+    // Compile fragment shader
+    const fShader = this.compileShader(gl, fShaderTxt, gl.FRAGMENT_SHADER);
+    // Link shaders into a shader program
+    const shaderProgram = this.linkShaders(gl, vShader, fShader, true);
+
+    // Use the shader program
     gl.useProgram(shaderProgram);
-    const aPositionLoc = gl.getAttribLocation(shaderProgram, "aPosition")
-    const aColorRgbLoc = gl.getAttribLocation(shaderProgram, "aColorRgb")
-    const uModelMatrixLoc = gl.getUniformLocation(shaderProgram, "uModelMatrix")
-    const uViewMatrixLoc = gl.getUniformLocation(shaderProgram, "uViewMatrix")
-    const uProjectionMatrixLoc = gl.getUniformLocation(shaderProgram, "uProjectionMatrix")
-  
+
+    // Retrieve attribute and uniform locations from the shader program
+    const aPositionLoc = gl.getAttribLocation(shaderProgram, 'aPosition');
+    const aColorRgbLoc = gl.getAttribLocation(shaderProgram, 'aColorRgb');
+    const uModelMatrixLoc = gl.getUniformLocation(shaderProgram, 'uModelMatrix');
+    const uViewMatrixLoc = gl.getUniformLocation(shaderProgram, 'uViewMatrix');
+    const uProjectionMatrixLoc = gl.getUniformLocation(shaderProgram, 'uProjectionMatrix');
+
+    // Stop using the shader program
     gl.useProgram(null);
-  
+
+    // Store shader program information in this.shader
     this.shader = {
       program: shaderProgram,
       attributes: {
@@ -131,273 +89,187 @@ class RefTriangles2 {
         uModelMatrix: uModelMatrixLoc,
         uViewMatrix: uViewMatrixLoc,
         uProjectionMatrix: uProjectionMatrixLoc,
-      }
-    }
-  
-    console.log({shader: this.shader})
+      },
+    };
   }
 
-  setupBuffers({pos, colors}) {
-    const gl = this.#gl
+  // Compile a shader of given type with provided source code
+  compileShader(gl, source, type) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
 
-    pos = pos.flat()
-    colors = colors.flat()
+    // Check if shader compilation was successful
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      console.error(`ERROR compiling shader!`, gl.getShaderInfoLog(shader));
+      gl.deleteShader(shader); // Clean up shader if compilation failed
+      return null;
+    }
 
-    const {pos: posVerts, colors: colorVerts}
-	  = setupDataBuffers(gl, {pos, colors})
+    return shader; // Return compiled shader
+  }
 
+  // Link vertex and fragment shaders into a shader program
+  linkShaders(gl, vShader, fShader, deleteShaders = false) {
+    const program = gl.createProgram();
+    gl.attachShader(program, vShader);
+    gl.attachShader(program, fShader);
+    gl.linkProgram(program);
+
+    // Check if shader program linking was successful
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      console.error('ERROR linking program!', gl.getProgramInfoLog(program));
+      gl.deleteProgram(program); // Clean up program if linking failed
+      return null;
+    }
+
+    // Delete shaders if specified
+    if (deleteShaders) {
+      gl.deleteShader(vShader);
+      gl.deleteShader(fShader);
+    }
+
+    return program; // Return linked shader program
+  }
+
+  // Set up WebGL buffers for position and color data
+  setupBuffers({ pos, colors }) {
+    const gl = this.#gl;
+
+    pos = pos.flat(); // Flatten position data
+    colors = colors.flat(); // Flatten color data
+
+    console.log('Position Data:', pos);
+    console.log('Color Data:', colors);
+
+    // Create buffer for position data
+    const posBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pos), gl.STATIC_DRAW);
+
+    // Create buffer for color data
+    const colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+
+    console.log('Position Buffer Size:', gl.getBufferParameter(gl.ARRAY_BUFFER, gl.BUFFER_SIZE));
+    console.log('Color Buffer Size:', gl.getBufferParameter(gl.ARRAY_BUFFER, gl.BUFFER_SIZE));
+
+    // Store buffers in this.buffers
     this.buffers = {
-      pos: posVerts, colors: colorVerts
-    }
+      pos: posBuffer,
+      colors: colorBuffer,
+    };
 
-    console.log({buffers:this.buffers})
-
+    gl.bindBuffer(gl.ARRAY_BUFFER, null); // Unbind the buffer
   }
 
-  // setupVao() {
-  //   const gl = this.#gl
-
-  //   const {
-  //     program,
-  //     attributes: {
-	// aPosition, aColorRgb
-  //     }
-  //   } = this.shader
-
-  //   const {pos, colors} = this.buffers
-
-  //   const vao = gl.createVertexArray()
-
-  //   // ----------------------------------------------------
-  //   // Bind Program Pointers to Data & Buffers
-  //   // ----------------------------------------------------
-
-  //   //Activate the Shader
-  //   gl.useProgram(program);
-  //   gl.bindVertexArray(vao);
-
-  //   // Uniforms
-  //   // ----------------------------------------------------
-  //   // Store data to the shader's uniform variable
-  //   // uPointSize
-  //   // gl.uniform1f(uPointSizeLoc, pointSize);
-
-  //   // r = fgColor.r
-  //   // g = fgColor.g
-  //   // b = fgColor.b
-  //   // a = fgColor.a
-  //   // console.log({fgColor: [r,g,b,a]})
-  //   // gl.uniform3fv(uFgColorRgbLoc, new Float32Array([r,g,b]));
-
-
-  //   // Attributes
-  //   // ----------------------------------------------------
-  //   // Tell gl which buffer we want to use at the moment
-  //   gl.bindBuffer(gl.ARRAY_BUFFER, pos);
-  //   // Set which buffer the attribute will pull its data from
-  //   gl.vertexAttribPointer(aPosition,3,gl.FLOAT,false,0,0);
-
-  //   // Tell gl which buffer we want to use at the moment
-  //   gl.bindBuffer(gl.ARRAY_BUFFER, colors);
-  //   // Set which buffer the attribute will pull its data from
-  //   gl.vertexAttribPointer(aColorRgb,3,gl.FLOAT,false,0,0);
-
-  //   // Enable the attributes in the shader. (Because they
-  //   // are disabled by default! Probably some code
-  //   // optimisation)
-  //   gl.enableVertexAttribArray(aPosition);
-  //   gl.enableVertexAttribArray(aColorRgb);
-
-  //   gl.bindBuffer(gl.ARRAY_BUFFER, null);
-  //   gl.bindVertexArray(null);
-  //   // Done setting up the buffer
-  //   // ----------------------------------------------------
-
-  //   // gl.bindVertexArray(null);
-  //   gl.useProgram(null);
-
-  //   this.vao = vao
-
-  //   console.log({vao:this.vao})
-  // }
-
-
+  // Set up Vertex Array Object (VAO) to hold vertex attribute configurations
   setupVao() {
     const gl = this.#gl;
-  
-    const {
-          program,
-          attributes: {
-            aPosition, aColorRgb
-          },
-          uniforms: {
-            uModelMatrix, uViewMatrix, uProjectionMatrix
-          }
-        } = this.shader
-      
-    const {pos, colors} = this.buffers
 
+    const { program, attributes: { aPosition, aColorRgb } } = this.shader; // Retrieve shader program and attribute locations
+    const { pos, colors } = this.buffers; // Retrieve buffers for position and color data
+
+    // Create and bind a new Vertex Array Object (VAO)
     const vao = gl.createVertexArray();
-  //  console.log("Position buffer size:", pos.length);
-    gl.useProgram(program);
     gl.bindVertexArray(vao);
-  
-    // Bind position buffer
+
+    // Configure position attribute
     gl.bindBuffer(gl.ARRAY_BUFFER, pos);
     gl.vertexAttribPointer(aPosition, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(aPosition);
-  
-    // Bind color buffer
+
+    // Configure color attribute
     gl.bindBuffer(gl.ARRAY_BUFFER, colors);
     gl.vertexAttribPointer(aColorRgb, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(aColorRgb);
-  
-    // Unbind buffers and VAO
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+    // Unbind VAO and buffers
     gl.bindVertexArray(null);
-    gl.useProgram(null);
-  
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+    // Store VAO in this.vao
     this.vao = vao;
-  
-    console.log({ vao: this.vao });
-      // Log buffer sizes
-  // console.log("Position buffer size:", pos.byteLength);
-  // console.log("Color buffer size:", colors.byteLength);
-
-  // console.log("VAO setup complete:", this.vao);
-  }
-  static async bootstrap() {
-    const Cls = this
-    
-    if (Cls.vShaderUrl instanceof URL === false) {
-      Cls.vShaderUrl = new URL(Cls.vShaderUrl, Cls.scriptName)
-    }
-    if (Cls.fShaderUrl instanceof URL === false) {
-      Cls.fShaderUrl = new URL(Cls.fShaderUrl, Cls.scriptName)
-    }
-
-    console.log({
-      vShaderUrl: Cls.vShaderUrl,
-      fShaderUrl: Cls.fShaderUrl,
-    })
-
-    Cls.vShaderTxt = await cachedLoad(
-      Cls.vShaderUrl, 'text'
-    )
-    Cls.fShaderTxt = await cachedLoad(
-      Cls.fShaderUrl, 'text'
-    )
   }
 
-
- 
   draw(ms, inputs) {
-    this.#debugInputs(inputs)
-    const gl = this.#gl
-    const N = this.N
-    const vao = this.vao
-  
+    // Initialize WebGL context and necessary variables
+    const gl = this.#gl;
+    const N = this.N;
+    const vao = this.vao;
+
+    // Retrieve shader program and uniform locations from this.shader
     const {
       program,
       uniforms: {
         uModelMatrix, uViewMatrix, uProjectionMatrix
       }
-    } = this.shader
-  
-    // Compute transformation matrices
-    
-  
-    const viewMatrix = mat4.create()
+    } = this.shader;
+
+    // Create view matrix based on user inputs
+    const viewMatrix = mat4.create();
     if (inputs.isCamTranslate) {
-      mat4.translate(viewMatrix, viewMatrix, [inputs.x, inputs.y, inputs.z])
+      mat4.translate(viewMatrix, viewMatrix, [inputs.x, inputs.y, inputs.z]); // Translate the view matrix
     }
-    // console.log({viewMatrix})
     if (inputs.isCamRotate) {
-      mat4.rotateX(viewMatrix, viewMatrix, inputs.pitchRadians)
-      mat4.rotateY(viewMatrix, viewMatrix, inputs.yawRadians)
-      mat4.rotateZ(viewMatrix, viewMatrix, inputs.rollRadians)
+      mat4.rotateX(viewMatrix, viewMatrix, inputs.pitchRadians); // Rotate around X axis
+      mat4.rotateY(viewMatrix, viewMatrix, inputs.yawRadians); // Rotate around Y axis
+      mat4.rotateZ(viewMatrix, viewMatrix, inputs.rollRadians); // Rotate around Z axis
     }
-    console.log({viewMatrix})
-  
-    // Continuous rotation
 
-    // Ensure ms and cubeRpm are valid numbers
-    // console.log('ms:', ms);
-    // console.log('cubeRpm:', inputs.cubeRpm);
-
-    const angle = ms * inputs.cubeRpm * 0.06 * (Math.PI / 180); // Converts rpm to radians per millisecond
-
-    // console.log('angle:', angle);
-
+    // Calculate rotation angle based on time and input RPM
+    const angle = ms * inputs.cubeRpm * 0.06 * (Math.PI / 180);
     const modelMatrix = mat4.create();
-    mat4.rotateY(modelMatrix, modelMatrix, angle);
+    mat4.rotateY(modelMatrix, modelMatrix, angle); // Rotate the model matrix around Y axis
 
-    console.log({modelMatrix})
-     // Ensure inputs are valid numbers
-  const isValidNumber = (num) => typeof num === 'number' && !isNaN(num) && isFinite(num);
-
-  if (!isValidNumber(inputs.camfov) || inputs.camfov<=0) {
-    // console.error('Invalid camfov value:', inputs.camfov);
-    inputs.camfov = Math.PI / 4; // Default to 45 degrees if invalid
-  }
-  if (!isValidNumber(inputs.camNear) || inputs.camNear <= 0) {
-    // console.error('Invalid camNear value:', inputs.camNear);
-    inputs.camNear = 0.002; // Default to 0.1 if invalid
-  }
-  if (!isValidNumber(inputs.camFar) || inputs.camFar <= inputs.camNear) {
-    // console.error('Invalid camFar value:', inputs.camFar);
-    inputs.camFar = 0.1; // Default to 1000 if invalid
-  }
-
-  const aspectRatio = gl.canvas.width / gl.canvas.height;
-  if (!isValidNumber(aspectRatio) || aspectRatio <= 0) {
-    console.error('Invalid aspect ratio:', aspectRatio);
-    // Default aspect ratio
-  }
-
-  const projectionMatrix = mat4.create();
-  if (inputs.isCamPerspective) {
-    mat4.perspective(projectionMatrix, inputs.camfov, gl.canvas.width / gl.canvas.height, inputs.camNear, inputs.camFar);
-  } else {
-    mat4.ortho(projectionMatrix, -1, 1, -1, 1, inputs.camNear, inputs.camFar);
-  }
-  // console.log(gl.canvas.width / gl.canvas.height);
-  console.log({ projectionMatrix });
-  // console.log({ projectionMatrix });
-  // Compute transformation matrices
-
-    // Set the uniforms
-    gl.useProgram(program);
-    gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix);
-    gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix);
-    gl.uniformMatrix4fv(uProjectionMatrix, false, projectionMatrix);
-  
-    gl.bindVertexArray(this.vao)
-    // gl.drawElements(gl.TRIANGLES, N, gl.UNSIGNED_SHORT, 0);
-    gl.drawArrays(gl.TRIANGLES, 0, this.N);
-    gl.bindVertexArray(null)
-    gl.useProgram(null);
-  }
-
-  #debugInputs(inputs) {
-    if (!deepEqual(inputs, this.#inputs)) {
-      // console.log({inputs})
+    // Ensure valid input values for camera perspective projection
+    const isValidNumber = (num) => typeof num === 'number' && !isNaN(num) && isFinite(num);
+    if (!isValidNumber(inputs.camfov) || inputs.camfov <= 0) {
+      inputs.camfov = Math.PI / 4; // Default field of view angle
     }
-    this.#inputs = inputs
+    if (!isValidNumber(inputs.camNear) || inputs.camNear <= 0) {
+      inputs.camNear = 0.1; // Default near clipping plane distance
+    }
+    if (!isValidNumber(inputs.camFar) || inputs.camFar <= inputs.camNear) {
+      inputs.camFar = 1000; // Default far clipping plane distance
+    }
+
+    // Calculate projection matrix based on perspective or orthographic projection
+    const aspectRatio = gl.canvas.width / gl.canvas.height;
+    if (!isValidNumber(aspectRatio) || aspectRatio <= 0) {
+      console.error('Invalid aspect ratio:', aspectRatio);
+    }
+    const projectionMatrix = mat4.create();
+    if (inputs.isCamPerspective) {
+      mat4.perspective(projectionMatrix, inputs.camfov, aspectRatio, inputs.camNear, inputs.camFar); // Perspective projection
+    } else {
+      mat4.ortho(projectionMatrix, -1, 1, -1, 1, inputs.camNear, inputs.camFar); // Orthographic projection
+    }
+
+    // Use the shader program and set uniform matrices
+    gl.useProgram(program);
+    gl.uniformMatrix4fv(uModelMatrix, false, modelMatrix); // Set model matrix uniform
+    gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix); // Set view matrix uniform
+    gl.uniformMatrix4fv(uProjectionMatrix, false, projectionMatrix); // Set projection matrix uniform
+
+    // Bind vertex array object and draw triangles
+    gl.bindVertexArray(this.vao);
+    gl.drawArrays(gl.TRIANGLES, 0, this.N); // Draw triangles
+    gl.bindVertexArray(null); // Unbind vertex array object
+    gl.useProgram(null); // Stop using the shader program
+
+ 
   }
-  
 }
 
-/**
- * Deep Equal for object comparison.
- *
- * Adapted from this SO exchange:
- * https://stackoverflow.com/a/32922084
- */
 function deepEqual(x, y) {
+  if (x === null || x === undefined || y === null || y === undefined) {
+    return x === y;
+  }
   const ok = Object.keys, tx = typeof x, ty = typeof y;
-  return x && y && tx === 'object' && tx === ty ? (
+  return tx === 'object' && ty === 'object' && (
     ok(x).length === ok(y).length &&
-      ok(x).every(key => deepEqual(x[key], y[key]))
-  ) : (x === y);
+    ok(x).every(key => deepEqual(x[key], y[key]))
+  );
 }

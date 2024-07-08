@@ -2,10 +2,9 @@
 
 precision mediump float;
 
-in vec3 fColorRgb;
+in vec3 vColorRgb;
+out vec4 fragColor;
 
-out vec4 finalColor;
-
-void main(void) {
-  finalColor = vec4(fColorRgb, 1.0);
+void main() {
+  fragColor = vec4(vColorRgb, 1.0);
 }

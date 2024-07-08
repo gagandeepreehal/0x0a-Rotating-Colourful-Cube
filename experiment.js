@@ -1,200 +1,112 @@
 class Experiment {
   // Candidate Details
-  static rollNo = '101917045'
-  static name = 'Gagandeep Singh Reehal'
+  static rollNo = '101917045';
+  static name = 'Gagandeep Singh Reehal';
 
-  #gl
-  #programs=[]
+  #gl; // Private WebGL context
+  #programs = []; // Array to hold instances of RefTriangles2
 
-  canvasSel = '#myCanvas'
-  cameraControls
+  canvasSel = '#myCanvas'; // Selector for canvas element
+  cameraControls; // Placeholder for camera controls instance
 
   constructor() {
-    const Cls = this.constructor
+    const Cls = this.constructor;
 
-    this.controls
-      = new Controls('#controls', {
-	submitSel: '#controls-submit'
-      })
+    // Initialize controls for user interaction
+    this.controls = new Controls('#controls', {
+      submitSel: '#controls-submit'
+    });
 
-    // const handleCamera = this.handleCamera.bind(this)
-    // this.cameraControls.el.addEventListener(
-    //   'update', handleCamera
-    // )
-    // this.cameraControls.el.addEventListener(
-    //   'submit', handleCamera
-    // )
+    // Make controls visible
+    this.controls.unhide();
 
-    // Uncomment to enable tranform controls
-    // --------------------------------------------------
-    this.controls.unhide()
-
-    const {inputs} = this.controls
-    console.log({inputs})
+    const { inputs } = this.controls;
+    console.log({ inputs }); // Log inputs for debugging
   }
 
   async setupPrograms(gl) {
-    this.#gl = gl
-    const Cls = this.constructor
-    await RefTriangles2.bootstrap()
+    this.#gl = gl; // Store WebGL context locally
 
-    const data = Cls.generateData(80)
+    const Cls = this.constructor;
+
+    const data = Cls.generateData(8); // Generate data for 8 vertices (cube)
 
     try {
-      const refTriangles2 = new RefTriangles2(gl, data)
-      this.#programs.push(refTriangles2)
+      const refTriangles2 = new RefTriangles2(gl, data); // Create RefTriangles2 instance
+      this.#programs.push(refTriangles2); // Store instance in programs array
 
     } catch (e) {
-      console.error(e)
+      console.error(e); // Log any errors encountered during setup
     }
-    
   }
 
   loop(ms) {
-    const gl = this.#gl
+    const gl = this.#gl;
 
-    const {inputs} = this.controls
-    // console.log({handleCamera:true, inputs})
+    const { inputs } = this.controls;
 
-    gl.clearColor(0,0,0,0)
-    // Clear Buffers
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+    gl.clearColor(0, 0, 0, 0); // Set clear color (black)
+    // Clear Buffers (color and depth)
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     for (const program of this.#programs) {
-      program.draw(ms, inputs)
+      program.draw(ms, inputs); // Draw each RefTriangles2 instance
     }
   }
 
-  // static generateData(N, redundancy=6) {
-    
-    
-  //   const data = {
-  //     pos : getRandomTriangles(N, redundancy, [-1.5,1.5]),
-  //     colors : getRandomColorsRgb(N,3),
-  //   }
-  //   console.log({data})
-  //   return data
-  // }
-
-  
   static generateData(N) {
-    // Define the 8 vertices of a unit cube centered at the origin
-  const vertices = [
-    [-0.5, -0.5, -0.5],
-    [0.5, -0.5, -0.5],
-    [0.5, 0.5, -0.5],
-    [-0.5, 0.5, -0.5],
-    [-0.5, -0.5, 0.5],
-    [0.5, -0.5, 0.5],
-    [0.5, 0.5, 0.5],
-    [-0.5, 0.5, 0.5]
-  ];
+    const vertices = [
+      [-0.5, -0.5, -0.5],
+      [0.5, -0.5, -0.5],
+      [0.5, 0.5, -0.5],
+      [-0.5, 0.5, -0.5],
+      [-0.5, -0.5, 0.5],
+      [0.5, -0.5, 0.5],
+      [0.5, 0.5, 0.5],
+      [-0.5, 0.5, 0.5]
+    ];
 
-  // Define the colors for each vertex
-  const color = [
-    [1.0, 0.0, 0.0], // Red
-    [0.0, 1.0, 0.0], // Green
-    [0.0, 0.0, 1.0], // Blue
-    [1.0, 1.0, 0.0], // Yellow
-    [1.0, 0.0, 1.0], // Magenta
-    [0.0, 1.0, 1.0], // Cyan
-    [1.0, 0.5, 0.0], // Orange
-    [0.5, 0.0, 0.5]  // Purple
-  ];
+    const colors = [
+      [1.0, 0.0, 0.0], // Red
+      [0.0, 1.0, 0.0], // Green
+      [0.0, 0.0, 1.0], // Blue
+      [1.0, 1.0, 0.0], // Yellow
+      [1.0, 0.0, 1.0], // Magenta
+      [0.0, 1.0, 1.0], // Cyan
+      [1.0, 0.5, 0.0], // Orange
+      [0.5, 0.0, 0.5]  // Purple
+    ];
 
-  // Define the 12 triangles composing the cube (two per face)
-  const indices = [
-    // Front face
-    [0, 1, 2],
-    [2, 3, 0],
-    // Back face
-    [4, 5, 6],
-    [6, 7, 4],
-    // Left face
-    [0, 4, 7],
-    [7, 3, 0],
-    // Right face
-    [1, 5, 6],
-    [6, 2, 1],
-    // Top face
-    [3, 2, 6],
-    [6, 7, 3],
-    // Bottom face
-    [0, 1, 5],
-    [5, 4, 0]
-  ];
+    const indices = [
+      // Front face
+      [0, 1, 2],
+      [2, 3, 0],
+      // Back face
+      [4, 5, 6],
+      [6, 7, 4],
+      // Left face
+      [0, 4, 7],
+      [7, 3, 0],
+      // Right face
+      [1, 5, 6],
+      [6, 2, 1],
+      // Top face
+      [3, 2, 6],
+      [6, 7, 3],
+      // Bottom face
+      [0, 1, 5],
+      [5, 4, 0]
+    ];
 
-  // Flatten the vertices and colors based on the indices
-  const pos1 = indices.flat().map(index => vertices[index]);
-  const flattenedColors = indices.flat().map(index => color[index]);
+    // Flatten the vertices and colors based on the indices
+    const pos = indices.flat().map(index => vertices[index]).flat();
+    const flattenedColors = indices.flat().map(index => colors[index]).flat();
 
-  // Convert the arrays to a flat format expected by WebGL
-  const posFlat = pos1.flat();
-  const colorsFlat = flattenedColors.flat();
+    const data = {
+      pos,
+      colors: flattenedColors
+    };
 
-  const data = {
-    pos: posFlat,
-    colors: colorsFlat
-  };
-  // const data = {
-  //   pos: indices.flat().map(index => vertices[index]),
-  //   colors: indices.flat().map(index => color[index])
-  // };
-
-
-  // console.log({ data });
-  return data;
-    // const vertices = [
-    //   // Front face
-    //   [-0.5, -0.5, 0.5],  // 0
-    //   [0.5, -0.5, 0.5],   // 1
-    //   [0.5, 0.5, 0.5],    // 2
-    //   [-0.5, 0.5, 0.5],   // 3
-
-    //   // Back face
-    //   [-0.5, -0.5, -0.5], // 4
-    //   [0.5, -0.5, -0.5],  // 5
-    //   [0.5, 0.5, -0.5],   // 6
-    //   [-0.5, 0.5, -0.5],  // 7
-    // ];
-
-    // const colors = [
-    //   [1.0, 0.0, 0.0],  // Red
-    //   [0.0, 1.0, 0.0],  // Green
-    //   [0.0, 0.0, 1.0],  // Blue
-    //   [1.0, 1.0, 0.0],  // Yellow
-    //   [1.0, 0.0, 1.0],  // Magenta
-    //   [0.0, 1.0, 1.0],  // Cyan
-    //   // [1.0, 1.0, 1.0],  // White
-    //   // [0.5, 0.5, 0.5],  // Gray
-    // ];
-
-    // const indices = [
-    //   [0, 1, 2, 0, 2, 3],    // Front face
-    //   [4, 5, 6, 4, 6, 7],    // Back face
-    //   [1, 5, 6, 1, 6, 2],    // Right face
-    //   [0, 4, 7, 0, 7, 3],    // Left face
-    //   [3, 2, 6, 3, 6, 7],    // Top face
-    //   [0, 1, 5, 0, 5, 4],    // Bottom face
-    // ];
-
-    // const pos = [];
-    // const posColors = [];
-
-    // for (let face = 0; face < indices.length; ++face) {
-    //   const triangle = indices[face];
-    //   const color = colors[face];
-
-    //   for (let vertexIndex of triangle) {
-    //     const vertex = vertices[vertexIndex];
-    //     pos.push(...vertex);
-    //     posColors.push(...color);
-    //   }
-    // }
-
-    // console.log({ pos, posColors });
-
-    // return { pos: pos, colors: posColors };
+    return data; // Return flattened vertex and color data
   }
-  
 }
